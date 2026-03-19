@@ -1,4 +1,3 @@
-use actix_web::dev::Server;
 use zero2prod::run;
 
 #[tokio::main]
