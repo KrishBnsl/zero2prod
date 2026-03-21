@@ -1,8 +1,9 @@
 use actix_web::dev::Server;
-use actix_web::{App, HttpServer, web};
+use actix_web::{web, App, HttpServer};
 use routes::health_check::health_check;
 use routes::subscribe::subscribe;
 use std::net::TcpListener;
+pub mod configuration;
 pub mod routes;
 
 pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
