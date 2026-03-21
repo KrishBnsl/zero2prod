@@ -1,3 +1,5 @@
+use config::Config;
+
 #[derive(serde::Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
@@ -14,7 +16,9 @@ pub struct DatabaseSettings {
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
-    let mut settings = config::Config::default();
-    settings.merge(config::File::with_name("configuration"))?;
-    settings.try_into()
+    let mut settings = Config::builder()
+        .add_source(config::File::with_name("configuration"))
+        .build()?
+        .try_deserialize()?;
+    Ok(settings)
 }
