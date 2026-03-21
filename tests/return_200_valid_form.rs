@@ -4,7 +4,7 @@ use zero2prod::configuration::get_configuration;
 
 #[tokio::test]
 async fn subscribe_returns_a_200_for_valid_form_data() {
-    let app_address = common::spawn_app();
+    let app_address = common::spawn_app().await;
     let configuration = get_configuration().expect("failed to read configuration");
     let connection_string = configuration.database.connection_string();
     let mut connection = PgConnection::connect(&connection_string)
@@ -21,6 +21,8 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
         .await
         .expect("failed to execute request");
     assert_eq!(200, response.status().as_u16());
+    dotenvy::dotenv().expect(".env file missing");
+    let database_url = std::env::var("DATABASE_URL").expect("db url variable missing");
 
     let saved = sqlx::query!("SELECT email, name FROM subscriptions",)
         .fetch_one(&mut connection)
