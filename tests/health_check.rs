@@ -1,13 +1,16 @@
 use std::{fmt::format, mem::zeroed, net::TcpListener};
+
+use crate::common::TestApp;
 mod common;
 
 #[tokio::test]
 async fn health_check_works() {
-    let address = common::spawn_app().await;
+    let app: TestApp = common::spawn_app().await;
     let client = reqwest::Client::new();
+    println!("{}", &app.address);
 
     let response = client
-        .get(&format!("{}/health_check", &address))
+        .get(&format!("http://{}/health_check", &app.address))
         .send()
         .await
         .expect("Failed to execute request");

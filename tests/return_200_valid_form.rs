@@ -5,7 +5,7 @@ use zero2prod::routes::subscribe::SubscribeError;
 
 #[tokio::test]
 async fn subscribe_returns_a_200_for_valid_form_data() {
-    let app_address = common::spawn_app().await;
+    let app = common::spawn_app().await;
     let configuration = get_configuration().expect("failed to read configuration");
     let connection_string = configuration.database.connection_string();
     let mut connection = PgPool::connect(&connection_string)
@@ -15,7 +15,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let client = reqwest::Client::new();
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
     let response = client
-        .post(&format!("{}/subscription", app_address))
+        .post(&format!("http://{}/subscription", app.address))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
@@ -26,7 +26,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let database_url = std::env::var("DATABASE_URL").expect("db url variable missing");
 
     let saved = sqlx::query!("SELECT email, name FROM subscriptions",)
-        .fetch_one(&connection)
+        .fetch_one(&app.db_pool)
         .await
         .expect("couldn't execute query");
 

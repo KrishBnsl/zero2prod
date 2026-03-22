@@ -2,7 +2,7 @@ mod common;
 
 #[tokio::test]
 async fn subscribe_returns_a_400_when_data_is_missing() {
-    let app_address = common::spawn_app().await;
+    let app = common::spawn_app().await;
     let client = reqwest::Client::new();
     let test_cases = vec![
         ("name=le%20guin", "missing the email"),
@@ -12,7 +12,7 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
 
     for (invalid_body, error_message) in test_cases {
         let response = client
-            .post(&format!("{}/subscription", &app_address))
+            .post(&format!("{}/subscription", &app.address))
             .header("Content-type", "application/x-www-form-urlencoded")
             .body(invalid_body)
             .send()
