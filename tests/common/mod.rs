@@ -1,5 +1,5 @@
 use config::Config;
-use sqlx::{Connection, PgConnection};
+use sqlx::{Connection, PgPool};
 use std::net::TcpListener;
 
 use zero2prod::configuration::{Settings, get_configuration};
@@ -7,7 +7,7 @@ use zero2prod::configuration::{Settings, get_configuration};
 pub async fn spawn_app() -> String {
     let configuration =
         get_configuration().expect("failed to get configuration as configuration file not found");
-    let connection = PgConnection::connect(&configuration.database.connection_string())
+    let connection = PgPool::connect(&configuration.database.connection_string())
         .await
         .expect("failed to connect to postgres server");
     let address = format!("127.0.0.1:{}", configuration.application_port);

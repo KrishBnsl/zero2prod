@@ -1,13 +1,14 @@
 mod common;
-use sqlx::{Connection, PgConnection};
+use sqlx::{Connection, PgPool};
 use zero2prod::configuration::get_configuration;
+use zero2prod::routes::subscribe::SubscribeError;
 
 #[tokio::test]
 async fn subscribe_returns_a_200_for_valid_form_data() {
     let app_address = common::spawn_app().await;
     let configuration = get_configuration().expect("failed to read configuration");
     let connection_string = configuration.database.connection_string();
-    let mut connection = PgConnection::connect(&connection_string)
+    let mut connection = PgPool::connect(&connection_string)
         .await
         .expect("failed to make a connection to postgres");
 
@@ -25,9 +26,9 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let database_url = std::env::var("DATABASE_URL").expect("db url variable missing");
 
     let saved = sqlx::query!("SELECT email, name FROM subscriptions",)
-        .fetch_one(&mut connection)
+        .fetch_one(&connection)
         .await
-        .expect("Failed to fetch subscription.");
+        .expect("couldn't execute query");
 
     assert_eq!(saved.email, "ursula_le_guin@gmail.com");
     assert_eq!(saved.name, "le guin");
